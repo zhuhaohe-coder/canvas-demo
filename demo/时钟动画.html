@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        background-image: url(../images/grid.png);
+      }
+      canvas {
+        background-color: rgba(255, 0, 0, 0.1);
+      }
+      .clock {
+        width: 300px;
+        height: 300px;
+        margin: 10px;
+        background-color: black;
+        border-radius: 50px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="clock">
+      <canvas id="tutorial" width="300" height="300">
+        你的浏览器不兼容Canvas,请升级您的浏览器!
+      </canvas>
+    </div>
+    <script>
+      window.onload = function () {
+        let canvasEl = document.getElementById("tutorial");
+        if (!canvasEl.getContext) {
+          return;
+        }
+        let ctx = canvasEl.getContext("2d"); // 2d | webgl
+
+        function saveAndRestore(fn, ...args) {
+          ctx.save();
+          fn(...args);
+          ctx.restore();
+        }
+
+        //绘制背景
+        function drawBackGround() {
+          ctx.translate(150, 150);
+          ctx.fillStyle = "white";
+          ctx.beginPath();
+          ctx.arc(0, 0, 130, 0, 2 * Math.PI);
+          ctx.fill();
+        }
+
+        //绘制数字
+        function drawNumber() {
+          ctx.translate(150, 150);
+          ctx.font = "30px fangsong";
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          let numbers = [6, 5, 4, 3, 2, 1, 12, 11, 10, 9, 8, 7];
+          for (let i = 0; i < numbers.length; i++) {
+            let x = Math.sin((i * Math.PI) / 6) * 100;
+            let y = Math.cos((i * Math.PI) / 6) * 100;
+            ctx.fillText(numbers[i], x, y);
+          }
+        }
+
+        // 绘制时针;
+        function drawHours(hours, minute, second) {
+          ctx.translate(150, 150);
+          ctx.rotate(
+            ((Math.PI * 2) / 12) * hours +
+              ((Math.PI * 2) / 12 / 60) * minute +
+              ((Math.PI * 2) / 12 / 60 / 60) * second
+          );
+          ctx.lineWidth = 5;
+          ctx.lineCap = "round";
+          ctx.beginPath();
+          ctx.moveTo(0, 0);
+          ctx.lineTo(0, -50);
+          ctx.stroke();
+        }
+
+        //绘制分针
+        function drawMinute(minute, second) {
+          ctx.translate(150, 150);
+          ctx.rotate(
+            ((Math.PI * 2) / 60) * minute + ((Math.PI * 2) / 60 / 60) * second
+          );
+          ctx.lineWidth = 3;
+          ctx.lineCap = "round";
+          ctx.beginPath();
+          ctx.moveTo(0, 0);
+          ctx.lineTo(0, -70);
+          ctx.stroke();
+        }
+
+        //绘制秒针
+        function drawSecond(second) {
+          ctx.translate(150, 150);
+          ctx.rotate(((Math.PI * 2) / 60) * second);
+          ctx.strokeStyle = "red";
+          ctx.lineWidth = 2;
+          ctx.lineCap = "round";
+          ctx.beginPath();
+          ctx.moveTo(0, 0);
+          ctx.lineTo(0, -80);
+          ctx.stroke();
+        }
+
+        //绘制圆心
+        function drawCenter() {
+          ctx.translate(150, 150);
+          ctx.beginPath();
+          ctx.arc(0, 0, 8, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.beginPath();
+          ctx.arc(0, 0, 5, 0, Math.PI * 2);
+          ctx.fillStyle = "gray";
+          ctx.fill();
+        }
+
+        //绘制刻度 - 时
+        function drawHourScale() {
+          ctx.translate(150, 150);
+          for (let i = 0; i < 12; i++) {
+            ctx.rotate((Math.PI * 2) / 12);
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(0, -130);
+            ctx.lineTo(0, -122);
+            ctx.stroke();
+          }
+        }
+
+        //绘制刻度 - 分/秒
+        function drawMinuteScale() {
+          ctx.translate(150, 150);
+          for (let i = 0; i < 60; i++) {
+            ctx.rotate((Math.PI * 2) / 60);
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(0, -130);
+            ctx.lineTo(0, -125);
+            ctx.stroke();
+          }
+        }
+
+        function draw() {
+          ctx.save();
+          let time = new Date();
+          let hours = time.getHours();
+          let minute = time.getMinutes();
+          let second = time.getSeconds();
+          ctx.clearRect(0, 0, 300, 300);
+
+          saveAndRestore(drawBackGround);
+          saveAndRestore(drawNumber);
+          saveAndRestore(drawHours, hours, minute, second);
+          saveAndRestore(drawMinute, minute, second);
+          saveAndRestore(drawSecond, second);
+          saveAndRestore(drawCenter);
+          saveAndRestore(drawHourScale);
+          saveAndRestore(drawMinuteScale);
+          ctx.restore();
+          requestAnimationFrame(draw);
+        }
+        requestAnimationFrame(draw);
+      };
+    </script>
+  </body>
+</html>
